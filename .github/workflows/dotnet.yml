@@ -1,0 +1,60 @@
+# github action
+# build and package the project
+# create a release and upload the package to github
+name: Build and Package
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Extract Version from Directory.Build.props
+        run: |
+          VERSION=$(cat Directory.Build.props | grep '<Version>' | sed 's/.*<Version>\(.*\)<\/Version>.*/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build project
+        run: dotnet build --configuration Release DevToys.ExtensionsByTravis/DevToys.ExtensionsByTravis.csproj
+      # - name: Publish artifact
+      #   run: dotnet publish --configuration Release --output ./publish DevToys.ExtensionsByTravis/DevToys.ExtensionsByTravis.csproj
+      - name: Publish artifact
+        run: dotnet pack --configuration Release --output ./publish DevToys.ExtensionsByTravis/DevToys.ExtensionsByTravis.csproj
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: publish/DevToys.ExtensionsByTravis.${{ env.VERSION }}.nupkg
+          asset_name: DevToys.ExtensionsByTravis.${{ env.VERSION }}.nupkg
+          tag: ${{ github.ref_name }}
+      # - name: Create release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ env.VERSION }}
+      #     release_name: Release v${{ env.VERSION }}
+      #     draft: false
+      #     prerelease: false
+      # - name: Upload artifact
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./publish/DevToys.ExtensionsByTravis.${{ env.VERSION }}.nupkg
+      #     asset_name: DevToys.ExtensionsByTravis.${{ env.VERSION }}.nupkg
+      #     asset_content_type: application/octet-stream
+      - name: Publish to NuGet
+        run: dotnet nuget push ./publish/DevToys.ExtensionsByTravis.${{ env.VERSION }}.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/tvanderpool/index.json"

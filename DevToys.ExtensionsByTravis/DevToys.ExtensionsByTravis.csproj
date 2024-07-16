@@ -1,17 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<SonarQubeExclude>True</SonarQubeExclude>
-	<NoWarn>1701;1702;S101</NoWarn>
 	<PackageId>DevToys.ExtensionsByTravis</PackageId>
 	<Title>DevToys.ExtensionsByTravis</Title>
-	<PackageTags>devtoys-app</PackageTags>
-	<Authors>Travis Vanderpool</Authors>
 	<Description>Tools: Lines To CSV</Description>
-	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,10 +12,6 @@
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive; compile</IncludeAssets>
 	</PackageReference>
 	<PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-	 <None Include="LICENSE.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
